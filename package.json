@@ -1,0 +1,46 @@
+{
+  "name": "xmail-exchange",
+  "description": "the exchange protocol wrapper for xmail client",
+  "version": "0.0.0",
+  "homepage": "https://github.com/liuxiong332/xmail-exchange",
+  "bugs": "https://github.com/liuxiong332/xmail-exchange/issues",
+  "license": "MIT",
+  "main": "dist/xmail-exchange.js",
+  "author": {
+    "name": "liuxiong",
+    "email": "liuxiong332@163.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liuxiong332/xmail-exchange"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords":[],
+  "dependencies": {
+    "lodash": "3.8.0",
+    "q": "1.3.0",
+    "debug": "2.1.3"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.8",
+    "gulp-util": "^3.0.1",
+    "gulp-bump": "^0.1.11",
+    "gulp-coffeelint": "^0.4.0",
+    "gulp-mocha": "^1.1.0",
+    "gulp-coffee-istanbul": "^0.7.0",
+    "coveralls": "^2.11.1",
+    "should": "^4.0.4",
+    "gulp-coffee": "^2.3.1",
+    "gulp-load-plugins": "^0.6.0",
+    "gulp-plumber": "^0.6.5",
+    "coffee-script": "^1.9.1",
+    "sinon": "^1.14.1"
+  },
+  "scripts": {
+    "coveralls": "gulp test && cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "test": "gulp test",
+    "prepublish": "gulp dist"
+  }
+}
