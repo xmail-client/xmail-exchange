@@ -22,9 +22,11 @@
     "debug": "2.1.3",
     "event-kit": "^1.1.0",
     "lodash": "3.8.0",
+    "property-accessors": "^1.1.3",
     "q": "1.3.0",
     "sequelize": "^2.1.0",
-    "sqlite3": "^3.0.6"
+    "sqlite3": "^3.0.6",
+    "viewpoint": "^0.1.1"
   },
   "devDependencies": {
     "gulp": "^3.8.8",
