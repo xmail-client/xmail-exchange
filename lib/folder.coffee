@@ -4,16 +4,19 @@ class Folder
   # get all of the folders hierarchy
   @syncFolders: ->
 
+  @syncMessages: ->
+
   @load: ->
 
   @folderFlags =
     INBOX: 0
     TRASH: 1
 
-  constructor: ->
+  constructor: (sequelize) ->
     @children = []
     @flag = 0
     @emitter = new Emitter
+    sequelize.define 'exchange-folder',
 
   setName: (@name) ->
   getName: -> @name
