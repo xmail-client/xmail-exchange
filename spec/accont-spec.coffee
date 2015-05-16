@@ -1,25 +1,42 @@
 should = require 'should'
 path = require 'path'
-common = require 'xmail-model-common'
+Q = require 'q'
+Mapper = require 'sqlite-orm'
+Account = require '../lib/account'
+Folder = require '../lib/folder'
+Migration = Mapper.Migration
+require '../lib/db-info'
 
-describe 'create sequelize', ->
-  it 'define', ->
-    # dbPath = path.resolve(__dirname, 'temp/test.db')
-    # common.setupDB(dbPath, 'testdb')
-    # Account = require '../lib/account'
-    #
-    # common.getDB().sync()
-    # .then ->
-    #   account = Account.create
-    #     username: 'user'
-    #     password: 'password'
-    #     url: 'url'
-    #     email: 'xx@xx'
-    #   done()
-    # .catch (err) -> done(err)
-      # .then ->
+describe 'ExchangeAccount', ->
+  mapper = null
 
-      # .then ->
-      #   Account.findOne().then (account) ->
-      #     console.log account.email
-      #     done()
+  beforeEach (done) ->
+    dbPath = path.resolve(__dirname, 'temp/test.db')
+    mapper = new Mapper path.resolve(__dirname, 'test.db')
+    mapper.sync().then -> done()
+    .catch done
+
+  afterEach (done) ->
+    mapper.dropAllTables()
+    .then ->
+      Migration.clear()
+      mapper.close()
+      done()
+    .catch done
+
+  it 'account has many folders', (done) ->
+    params = {username: 'u', password: 'p', url: 'l', email: 'x'}
+    account = Account.new(params)
+    folder = Folder.new(name: 'f')
+
+    Q.all [account.save(), folder.save()]
+    .then ->
+      account.folders.push folder
+      Q.delay(0)
+    .then ->
+      account.folders.length.should.equal(1)
+      account.folders[0].should.equal folder
+      console.log folder.account
+      # folder.account.should.equal account
+      done()
+    .catch done
