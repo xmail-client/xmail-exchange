@@ -11,8 +11,7 @@ describe 'ExchangeAccount', ->
   mapper = null
 
   beforeEach (done) ->
-    dbPath = path.resolve(__dirname, 'temp/test.db')
-    mapper = new Mapper path.resolve(__dirname, 'test.db')
+    mapper = new Mapper path.resolve(__dirname, 'temp/test.db')
     mapper.sync().then -> done()
     .catch done
 
