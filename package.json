@@ -19,14 +19,11 @@
   ],
   "keywords": [],
   "dependencies": {
-    "debug": "2.1.3",
     "event-kit": "^1.1.0",
-    "lodash": "3.8.0",
-    "property-accessors": "^1.1.3",
     "q": "1.3.0",
-    "sequelize": "^2.1.0",
-    "sqlite3": "^3.0.6",
-    "viewpoint": "^0.1.1"
+    "sqlite-orm": "^0.1.4",
+    "viewpoint": "^0.1.1",
+    "xmail-model-common": "^0.1.0"
   },
   "devDependencies": {
     "gulp": "^3.8.8",

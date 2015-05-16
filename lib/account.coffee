@@ -1,21 +1,14 @@
 {Emitter} = require 'event-kit'
 PropertyAccessors = require 'property-accessors'
+common = require 'xmail-model-common'
+{ModelBase} = require 'sqlite-orm'
 
-class Account
+defAccountModel = ->
+
+module.exports =
+class ExchangeAccount
   PropertyAccessors.includeInto this
+  ModelBase.includeInto this
 
-  @::accessor 'email',
-    get: -> @email
-    set: (@email) ->
-
-  @::accessor 'username',
-    get: -> @username
-    set: (@username) ->
-
-  @::accessor 'password',
-    get: -> @password
-    set: (@password) ->
-
-  @::accessor 'url',
-    get: -> @url
-    set: (@url) ->
+  constructor: (params) ->
+    @initModel params
