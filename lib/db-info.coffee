@@ -6,9 +6,11 @@ Migration.createTable 'ExchangeAccount', (t) ->
   t.addColumn 'username', Mapper.TEXT
   t.addColumn 'password', Mapper.TEXT
   t.addColumn 'url', Mapper.TEXT
+  t.addReference 'rootFolderId', 'ExchangeFolder'
 
-Migration.createTable 'Folder', (t) ->
+Migration.createTable 'ExchangeFolder', (t) ->
   t.addColumn 'name', Mapper.TEXT
   t.addColumn 'folderId', Mapper.TEXT
   t.addColumn 'flags', Mapper.INTEGER
-  t.addReference 'parentId', 'Folder'
+  t.addReference 'parentId', 'ExchangeFolder'
+  t.addReference 'accountId', 'ExchangeAccount'

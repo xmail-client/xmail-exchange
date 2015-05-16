@@ -1,23 +1,23 @@
 {Emitter} = require 'event-kit'
 {ModelBase} = require 'sqlite-orm'
+Account = require './account'
 
-class Folder
+module.exports =
+class ExchangeFolder
   ModelBase.includeInto this
 
-  @belongsTo Folder, {through: 'parentId', as: 'parent'}
-  @hasMany Folder, {as: 'children'}
+  @belongsTo this, {through: 'parentId', as: 'parent'}
+  @hasMany this, {as: 'children'}
+  @belongsTo Account, {through: 'accountId'}
 
   constructor: (params) ->
     @initModel params
-
+    @flags = 0
+    @emitter = new Emitter
   # get all of the folders hierarchy
   @syncFolders: ->
 
   @syncMessages: ->
-
-  constructor: (sequelize) ->
-    @flags = 0
-    @emitter = new Emitter
 
   setFlag: (flag) -> @flags |= flag
   hasFlag: (flag) -> @flags & flag
@@ -33,3 +33,13 @@ class Folder
 
   onDidRemoveChild: (callback) ->
     @emitter.on 'did-remove-child', callback
+
+  @FLAGS =
+    INBOX: 0x1, DRAFTS: 0x2, SENT_MAIL: 0x4, TRASH: 0x8, JUNK: 0x10
+
+  @DISTINGUISH_MAP =
+    inbox: @FLAGS.INBOX
+    drafts: @FLAGS.DRAFTS
+    sentitems: @FLAGS.SENT_MAIL
+    deleteditems: @FLAGS.TRASH
+    junkemail: @FLAGS.JUNK

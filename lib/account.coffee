@@ -1,14 +1,17 @@
-{Emitter} = require 'event-kit'
-PropertyAccessors = require 'property-accessors'
 common = require 'xmail-model-common'
 {ModelBase} = require 'sqlite-orm'
-
-defAccountModel = ->
+EWSClient = require 'viewpoint'
+Folder = require './folder'
 
 module.exports =
 class ExchangeAccount
-  PropertyAccessors.includeInto this
   ModelBase.includeInto this
+  @belongsTo Folder, {through: 'rootFolderId', as: 'rootFolder'}
+  @hasMany Folder
 
-  constructor: (params) ->
+  constructor: (params, httpOpts) ->
     @initModel params
+    @client = new EWSClient(@username, @password, @url, httpOpts)
+
+  syncFolders: ->
+    @client.syncFolders()
