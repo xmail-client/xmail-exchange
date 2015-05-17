@@ -35,7 +35,6 @@ describe 'ExchangeAccount', ->
     .then ->
       account.folders.length.should.equal(1)
       account.folders[0].should.equal folder
-      console.log folder.account
-      # folder.account.should.equal account
+      folder.account.should.equal account
       done()
     .catch done

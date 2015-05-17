@@ -1,13 +1,15 @@
 common = require 'xmail-model-common'
 {ModelBase} = require 'sqlite-orm'
 EWSClient = require 'viewpoint'
-Folder = require './folder'
 
 module.exports =
 class ExchangeAccount
   ModelBase.includeInto this
-  # @belongsTo Folder, {through: 'rootFolderId', as: 'rootFolder'}
-  @hasMany Folder, as: 'folders'
+
+  @initAssos: ->
+    Folder = require './folder'
+    # @belongsTo Folder, {through: 'rootFolderId', as: 'rootFolder'}
+    @hasMany Folder, as: 'folders'
 
   constructor: (params, httpOpts) ->
     @initModel params

@@ -1,14 +1,15 @@
 {Emitter} = require 'event-kit'
 {ModelBase} = require 'sqlite-orm'
-Account = require './account'
 
 module.exports =
 class ExchangeFolder
   ModelBase.includeInto this
 
-  # @belongsTo this, {through: 'parentId', as: 'parent'}
-  # @hasMany this, {as: 'children'}
-  @belongsTo Account, {through: 'accountId', as: 'account'}
+  @initAssos: ->
+    Account = require './account'
+    # @belongsTo this, {through: 'parentId', as: 'parent'}
+    # @hasMany this, {as: 'children'}
+    @belongsTo Account, {through: 'accountId', as: 'account'}
 
   constructor: (params) ->
     @initModel params
