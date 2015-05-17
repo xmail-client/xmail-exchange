@@ -8,7 +8,7 @@ class ExchangeAccount
 
   @initAssos: ->
     Folder = require './folder'
-    # @belongsTo Folder, {through: 'rootFolderId', as: 'rootFolder'}
+    @belongsTo Folder, {through: 'rootFolderId', as: 'rootFolder'}
     @hasMany Folder, as: 'folders'
 
   constructor: (params, httpOpts) ->

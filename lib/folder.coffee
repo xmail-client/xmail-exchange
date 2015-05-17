@@ -7,14 +7,15 @@ class ExchangeFolder
 
   @initAssos: ->
     Account = require './account'
-    # @belongsTo this, {through: 'parentId', as: 'parent'}
-    # @hasMany this, {as: 'children'}
+    @belongsTo this, {through: 'parentId', as: 'parent'}
+    @hasMany this, {through: 'parentId', as: 'children'}
     @belongsTo Account, {through: 'accountId', as: 'account'}
 
   constructor: (params) ->
     @initModel params
     @flags = 0
     @emitter = new Emitter
+
   # get all of the folders hierarchy
   @syncFolders: ->
 
