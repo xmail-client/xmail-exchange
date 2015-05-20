@@ -6,6 +6,7 @@ Migration.createTable 'ExchangeAccount', (t) ->
   t.addColumn 'username', Mapper.TEXT
   t.addColumn 'password', Mapper.TEXT
   t.addColumn 'url', Mapper.TEXT
+  t.addColumn 'folderSyncState', Mapper.TEXT
   t.addReference 'rootFolderId', 'ExchangeFolder'
 
 Migration.createTable 'ExchangeFolder', (t) ->
