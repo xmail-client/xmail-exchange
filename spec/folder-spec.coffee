@@ -10,10 +10,28 @@ describe 'ExchangeFolder', ->
     Q.all (folder.save() for folder in folders)
     .then ->
       folders[0].children.splice(0, 0, folders[1], folders[2])
-      Q.delay(0)
     .then ->
       folders[1].parent.should.equal folders[0]
       folders[2].parent.should.equal folders[0]
       Q.all (folder.save() for folder in folders)
     .then -> done()
+    .catch done
+
+  it.only 'test createFromXmlFolder', (done) ->
+    Folder = require '../lib/folder'
+    xmlFolder =
+      folderId: -> {id: 'folderId', changeKey: 'changeKey'}
+      displayName: -> 'NAME'
+
+    Folder._createFromXmlFolder(null, xmlFolder, null)
+    .then (folder) ->
+      Folder.getByFolderId(xmlFolder.folderId())
+    .then (folder) ->
+      folder.id.should.equal 1
+      Folder.removeByXmlFolder(null, xmlFolder)
+    .then ->
+      Folder.findAll()
+    .then (folders) ->
+      folders.length.should.equal 0
+      done()
     .catch done

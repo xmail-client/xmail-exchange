@@ -16,9 +16,6 @@ class ExchangeFolder
     @flags = 0
     @emitter = new Emitter
 
-  # get all of the folders hierarchy
-  @syncFolders: ->
-
   @syncMessages: ->
 
   setFlag: (flag) -> @flags |= flag
@@ -45,19 +42,19 @@ class ExchangeFolder
 
   @_createFromXmlFolder: (account, xmlFolder, parentFolder, flag) ->
     newFolder = new ExchangeFolder
-      folderId: xmlFolder.folderId()
+      folderId: xmlFolder.folderId().id
       name: xmlFolder.displayName()
-      flags: flag
+      flags: flag ? 0
       account: account
       parent: parentFolder
     newFolder.save().then -> newFolder
 
   @removeByXmlFolder: (account, xmlFolder) ->
     @getByFolderId(xmlFolder.folderId()).then (folder) ->
-      folder.destroy()
+      folder.destroy() if folder
 
   @getByFolderId: (folderId) ->
-    @find({folderId})
+    @find({folderId: folderId.id})
 
   @FLAGS =
     INBOX: 0x1, DRAFTS: 0x2, SENT_MAIL: 0x4, TRASH: 0x8, JUNK: 0x10
