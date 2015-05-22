@@ -22,7 +22,7 @@
     "event-kit": "^1.1.0",
     "q": "1.3.0",
     "sqlite-orm": "^0.1.12",
-    "viewpoint": "^0.1.1",
+    "viewpoint": "^0.1.4",
     "xmail-model-common": "^0.1.0"
   },
   "devDependencies": {

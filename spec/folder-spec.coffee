@@ -17,7 +17,7 @@ describe 'ExchangeFolder', ->
     .then -> done()
     .catch done
 
-  it.only 'test createFromXmlFolder', (done) ->
+  it 'test createFromXmlFolder', (done) ->
     Folder = require '../lib/folder'
     xmlFolder =
       folderId: -> {id: 'folderId', changeKey: 'changeKey'}

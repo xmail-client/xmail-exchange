@@ -33,12 +33,9 @@ class ExchangeFolder
   onDidRemoveChild: (callback) ->
     @emitter.on 'did-remove-child', callback
 
-  @createFromXmlFolder: (account, xmlFolder, parentFolder, flag) ->
-    if parentFolder
-      @_createFromXmlFolder(account, xmlFolder, parentFolder, flag)
-    else
-      @getByFolderId(xmlFolder.folderId()).then (parentFolder) =>
-        @_createFromXmlFolder(account, xmlFolder, parentFolder, flag)
+  @createFromXmlFolder: (account, xmlFolder) ->
+    @getByFolderId(xmlFolder.parentFolderId()).then (parentFolder) =>
+      @_createFromXmlFolder(account, xmlFolder, parentFolder, 0)
 
   @_createFromXmlFolder: (account, xmlFolder, parentFolder, flag) ->
     newFolder = new ExchangeFolder
@@ -55,6 +52,8 @@ class ExchangeFolder
 
   @getByFolderId: (folderId) ->
     @find({folderId: folderId.id})
+
+  @getByFlag: (flag) ->
 
   @FLAGS =
     INBOX: 0x1, DRAFTS: 0x2, SENT_MAIL: 0x4, TRASH: 0x8, JUNK: 0x10

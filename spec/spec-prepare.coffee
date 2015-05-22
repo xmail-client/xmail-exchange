@@ -15,9 +15,9 @@ beforeEach (done) ->
   else
     done()
 
-afterEach (done) ->
-  Q.all (Model.clear() for name, Model of Mapper.ModelBase.models)
-  .then -> done()
-  .catch done
+# afterEach (done) ->
+#   Q.all (Model.clear() for name, Model of Mapper.ModelBase.models)
+#   .then -> done()
+#   .catch done
 
 module.exports = -> mapper

@@ -19,24 +19,25 @@ class ExchangeAccount
   ROOT_FOLDER_ID = 'msgfolderroot'
 
   createRootFolder: ->
-    @client.getFolder(root_id)
-    .then (xmlFolder) => Folder.createFromFolder(this, xmlFolder, null, 0)
+    @client.getFolder {id: ROOT_FOLDER_ID, type: 'distinguished'}
+    .then (xmlFolder) => Folder._createFromXmlFolder(this, xmlFolder, null, 0)
     .then (rootFolder) => this.rootFolder = rootFolder
 
   createKnownFolders: ->
     folderIds = for name, flag of Folder.DISTINGUISH_MAP
       {id: name, type: 'distinguished', flag}
     @client.getFolders(folderIds).then (folders) =>
-      for xmlFolder, i in folders
-        Folder.createFromFolder(this, xmlFolder, @rootFolder, folderIds[i])
+      promises = for xmlFolder, i in folders
+        flag = folderIds[i].flag
+        Folder._createFromXmlFolder(this, xmlFolder, @rootFolder, flag)
+      Q.all promises
 
   syncFolders: ->
-    opts =
-    @client.syncFoldersWithParent(syncState: @folderSyncState).then (res) =>
+    @client.syncFoldersWithParent(@folderSyncState).then (res) =>
       @folderSyncState = res.syncState()
       promises = []
       for xmlFolder in res.creates()
-        promises.push Folder.createFromFolder(this, xmlFolder)
+        promises.push Folder.createFromXmlFolder(this, xmlFolder)
       for xmlFolder in res.deletes()
         promises.push Folder.removeByXmlFolder(this, xmlFolder)
       Q.all promises
