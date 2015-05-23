@@ -23,7 +23,9 @@ class ExchangeAccount
   createRootFolder: ->
     @client.getFolder {id: ROOT_FOLDER_ID, type: 'distinguished'}
     .then (xmlFolder) => Folder._createFromXmlFolder(this, xmlFolder, null, 0)
-    .then (rootFolder) => this.rootFolder = rootFolder
+    .then (rootFolder) =>
+      this.rootFolder = rootFolder
+      this.save()
 
   createKnownFolders: ->
     folderIds = for name, flag of Folder.DISTINGUISH_MAP
@@ -41,7 +43,7 @@ class ExchangeAccount
       Folder.getMapper().scopeTransaction =>
         promises = []
         for xmlFolder in res.creates()
-          promises.push Folder.createFromXmlFolder(this, xmlFolder)
+          promises.push Folder.updateFromXmlFolder(this, xmlFolder)
         for xmlFolder in res.deletes()
           promises.push Folder.removeByXmlFolder(this, xmlFolder)
         Q.all promises

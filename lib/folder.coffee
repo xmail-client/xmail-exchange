@@ -33,6 +33,10 @@ class ExchangeFolder
   onDidRemoveChild: (callback) ->
     @emitter.on 'did-remove-child', callback
 
+  @updateFromXmlFolder: (account, xmlFolder) ->
+    @getByFolderId(xmlFolder.folderId()).then (folder) =>
+      if folder then folder else @createFromXmlFolder(account, xmlFolder)
+
   @createFromXmlFolder: (account, xmlFolder) ->
     @getByFolderId(xmlFolder.parentFolderId()).then (parentFolder) =>
       @_createFromXmlFolder(account, xmlFolder, parentFolder, 0)
