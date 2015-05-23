@@ -1,8 +1,10 @@
 common = require 'xmail-model-common'
-{ModelBase} = require 'sqlite-orm'
+Mapper = require 'sqlite-orm'
 Folder = require './folder'
 EWSClient = require 'viewpoint'
 Q = require 'q'
+
+ModelBase = Mapper.ModelBase
 
 module.exports =
 class ExchangeAccount
@@ -27,17 +29,19 @@ class ExchangeAccount
     folderIds = for name, flag of Folder.DISTINGUISH_MAP
       {id: name, type: 'distinguished', flag}
     @client.getFolders(folderIds).then (folders) =>
-      promises = for xmlFolder, i in folders
-        flag = folderIds[i].flag
-        Folder._createFromXmlFolder(this, xmlFolder, @rootFolder, flag)
-      Q.all promises
+      Folder.getMapper().scopeTransaction =>
+        promises = for xmlFolder, i in folders
+          flag = folderIds[i].flag
+          Folder._createFromXmlFolder(this, xmlFolder, @rootFolder, flag)
+        Q.all promises
 
   syncFolders: ->
     @client.syncFoldersWithParent(@folderSyncState).then (res) =>
       @folderSyncState = res.syncState()
-      promises = []
-      for xmlFolder in res.creates()
-        promises.push Folder.createFromXmlFolder(this, xmlFolder)
-      for xmlFolder in res.deletes()
-        promises.push Folder.removeByXmlFolder(this, xmlFolder)
-      Q.all promises
+      Folder.getMapper().scopeTransaction =>
+        promises = []
+        for xmlFolder in res.creates()
+          promises.push Folder.createFromXmlFolder(this, xmlFolder)
+        for xmlFolder in res.deletes()
+          promises.push Folder.removeByXmlFolder(this, xmlFolder)
+        Q.all promises

@@ -1,7 +1,7 @@
 Q = require 'q'
 mapper = require '../spec-prepare'
 
-describe 'integration', ->
+describe.skip 'integration', ->
   config = require './config.json'
   Account = require '../../lib/account'
   account = null
@@ -27,7 +27,7 @@ describe 'integration', ->
     .then -> done()
     .catch done
 
-  it.only 'syncFolders should get folders', (done) ->
+  it 'syncFolders should get folders', (done) ->
     account.syncFolders()
     .then -> account.folderSyncState.should.ok
     .then -> done()
