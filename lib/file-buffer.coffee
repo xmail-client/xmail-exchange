@@ -8,15 +8,12 @@ class FileBuffer
 
   constructor: (params) ->
     @initModel params
-    @requests = []
 
   @initFile: (@path) ->
-    Q.ninvoke(fs, 'open', @path, 'a+').then (@fd) ->
-      Q.ninvoke fs, 'fstat', @fd
+    @requests = []
+    Q.ninvoke(fs, 'open', @path, 'w+')
+    .then (fd) -> Q.ninvoke(fs, 'fstat', fd)
     .then ({size}) => @fileSize = size
-
-  @close: ->
-    Q.ninvoke fs, 'close', @fd if @fd
 
   createReadStream: (opts={}) ->
     opts.start = @offset
@@ -25,9 +22,9 @@ class FileBuffer
 
   @_createNewRequest: ->
     offset = @fileSize
-    stream = fs.createWriteStream null, {flags: 'a', fd: @fd}
+    stream = fs.createWriteStream @path, {flags: 'a'}
     stream.on 'finish', =>
-      @fileSize += bytesWritten
+      @fileSize += stream.bytesWritten
       @create({offset: offset, length: stream.bytesWritten}).then (model) =>
         @isBusy = false
         @_schedule()
