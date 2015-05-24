@@ -20,9 +20,18 @@ Migration.createTable 'FileBuffer', (t) ->
   t.addColumn 'offset', Mapper.INTEGER
   t.addColumn 'length', Mapper.INTEGER
 
+Migration.createTable 'Mailbox', (t) ->
+  t.addColumn 'name', Mapper.TEXT
+  t.addColumn 'email', Mapper.TEXT
+
 Migration.createTable 'ExchangeMessage', (t) ->
   t.addColumn 'itemId', Mapper.TEXT
   t.addColumn 'changeKey', Mapper.TEXT
   t.addColumn 'subject', Mapper.TEXT
-  t.addColumn 'body', Mapper.TEXT
-  t.addColumn 'sentTime', Mapper.TEXT
+  t.addColumn 'bodyType', Mapper.TEXT
+  t.addReference 'body', 'FileBuffer'
+  t.addColumn 'sentTime', Mapper.DATETIME
+  t.addColumn 'hasAttachments', Mapper.INTEGER
+  t.addReference 'to', 'Mailbox'
+  t.addReference 'from', 'Mailbox'
+  t.addColumn 'isRead', Mapper.INTEGER
