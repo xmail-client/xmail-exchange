@@ -7,14 +7,16 @@ class ExchangeMessage
   ModelBase.includeInto this
 
   @initAssos: ->
-    @belongsTo Mailbox, {through: 'to', as: 'to'}
-    @belongsTo Mailbox, {through: 'from', as: 'from'}
+    # @belongsTo Mailbox, {through: 'from', as: 'from'}
     @belongsTo FileBuffer, {through: 'body', as: 'body'}
+    # @hasManyBelongsTo Mailbox,
+    #   midTableName: 'ExchangeToMailBox', sourceThrough: 'messageId', as: 'to'
 
   constructor: (params) ->
     @initModel params
 
   @createFromXmlMsg: (xmlMsg) ->
+    promises = []
     model = new ExchangeMessage
 
     itemId = xmlMsg.itemId()
@@ -24,12 +26,33 @@ class ExchangeMessage
 
     body = xmlMsg.body()
     @bodyType = body.bodyType
-    FileBuffer.newBuffer().then (stream) ->
-      stream.end(body.content)
-      stream.on 'model-finish', (buf) -> model.body = buf
+    promises.push model._writeBody(body.content)
 
     model.sentTime = new Date(xmlMsg.dateTimeSent())
-    model.to = Mailbox.create()
+
+    promises.push @_createMailbox(xmlMsg.from()).then (mailbox) ->
+      model.from = mailbox
+
+    for toXml in xmlMsg.toRecipients()
+      promises.push @_createMailbox(toXml).then (mailbox) ->
+        model.to.push mailbox
     model.isRead = xmlMsg.isRead()
+
+    Q.all(promises).then ->
+      model.save()
+      model
+
+  _writeBody: (content) ->
+    self = this
+    defer = Q.defer()
+    FileBuffer.newBuffer().then (stream) ->
+      stream.end(content)
+      stream.on 'model-finish', (buf) ->
+        self.body = buf
+        defer.resolve()
+    defer.promise
+
+  @_createMailbox: (xmlMailbox) ->
+    Mailbox.create {name: xmlMailbox.name(), email: xmlMailbox.emailAddress()}
 
   @removeByMsgId: (msgId) ->

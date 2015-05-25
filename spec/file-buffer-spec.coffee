@@ -5,7 +5,7 @@ mapper = require './spec-prepare'
 FileBuffer = require '../lib/file-buffer'
 
 describe 'FileBuffer', ->
-  it.only 'newBuffer', (done) ->
+  it 'newBuffer', (done) ->
     filePath = path.resolve(__dirname, 'temp/test.txt')
     if fs.existsSync (filePath)
       fs.unlinkSync(filePath)

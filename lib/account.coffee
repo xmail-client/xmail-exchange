@@ -12,7 +12,7 @@ class ExchangeAccount
 
   @initAssos: ->
     @belongsTo Folder, {through: 'rootFolderId', as: 'rootFolder'}
-    @hasMany Folder, as: 'folders'
+    @hasMany Folder, {through: 'accountId', as: 'folders'}
 
   constructor: (params, httpOpts) ->
     @initModel params

@@ -5,6 +5,8 @@ require '../lib/db-info'
 require '../lib/folder'
 require '../lib/account'
 require '../lib/file-buffer'
+require '../lib/mailbox'
+require '../lib/message'
 
 mapper = null
 

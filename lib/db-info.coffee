@@ -24,6 +24,10 @@ Migration.createTable 'Mailbox', (t) ->
   t.addColumn 'name', Mapper.TEXT
   t.addColumn 'email', Mapper.TEXT
 
+Migration.createTable 'ExchangeToMailBox', (t) ->
+  t.addReference 'mailboxId', 'Mailbox'
+  t.addReference 'messageId', 'ExchangeMessage'
+
 Migration.createTable 'ExchangeMessage', (t) ->
   t.addColumn 'itemId', Mapper.TEXT
   t.addColumn 'changeKey', Mapper.TEXT
@@ -32,6 +36,5 @@ Migration.createTable 'ExchangeMessage', (t) ->
   t.addReference 'body', 'FileBuffer'
   t.addColumn 'sentTime', Mapper.DATETIME
   t.addColumn 'hasAttachments', Mapper.INTEGER
-  t.addReference 'to', 'Mailbox'
   t.addReference 'from', 'Mailbox'
   t.addColumn 'isRead', Mapper.INTEGER
