@@ -7,10 +7,10 @@ class ExchangeMessage
   ModelBase.includeInto this
 
   @initAssos: ->
-    # @belongsTo Mailbox, {through: 'from', as: 'from'}
-    @belongsTo FileBuffer, {through: 'body', as: 'body'}
-    # @hasManyBelongsTo Mailbox,
-    #   midTableName: 'ExchangeToMailBox', sourceThrough: 'messageId', as: 'to'
+    @belongsTo Mailbox, {through: 'fromId', as: 'from'}
+    @belongsTo FileBuffer, {through: 'bodyId', as: 'body'}
+    @hasManyBelongsTo Mailbox,
+      midTableName: 'ExchangeToMailBox', sourceThrough: 'messageId', as: 'to'
 
   constructor: (params) ->
     @initModel params

@@ -33,8 +33,8 @@ Migration.createTable 'ExchangeMessage', (t) ->
   t.addColumn 'changeKey', Mapper.TEXT
   t.addColumn 'subject', Mapper.TEXT
   t.addColumn 'bodyType', Mapper.TEXT
-  t.addReference 'body', 'FileBuffer'
+  t.addReference 'bodyId', 'FileBuffer'
   t.addColumn 'sentTime', Mapper.DATETIME
   t.addColumn 'hasAttachments', Mapper.INTEGER
-  t.addReference 'from', 'Mailbox'
+  t.addReference 'fromId', 'Mailbox'
   t.addColumn 'isRead', Mapper.INTEGER
