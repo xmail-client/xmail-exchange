@@ -1,3 +1,4 @@
+Q = require 'q'
 {Emitter} = require 'event-kit'
 {ModelBase} = require 'sqlite-orm'
 
@@ -16,12 +17,24 @@ class ExchangeFolder
     @flags = 0
     @emitter = new Emitter
 
-  syncMessages: ->
-    client = @client
-    unless client then client = @client = @account.client
+  @$accountHook:
+    set: -> @client = @account.client
+
+  syncAllMessages: ->
+    @_syncMessages().then (isComplete) =>
+      @syncAllMessages() unless isComplete
+
+  _syncMessages: ->
+    syncRes = null
     opts = {folderId: @folderId, syncState: @syncState, maxReturned: 128}
-    client.syncItems(opts).then (res) ->
-      @syncState = res.syncState()
+    client.syncItems(opts).then (res) =>
+      Message = require './message'
+      syncRes = res
+      Q.all (Message.createFromXmlMsg(item, this) for item in res.creates())
+    .then =>
+      @syncState = syncRes.syncState()
+      this.save()
+    .then -> syncRes.includesLastItemInRange()
 
   setFlag: (flag) -> @flags |= flag
   hasFlag: (flag) -> @flags & flag

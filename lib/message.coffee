@@ -10,14 +10,16 @@ class ExchangeMessage
   @initAssos: ->
     @belongsTo Mailbox, {through: 'fromId', as: 'from'}
     @belongsTo FileBuffer, {through: 'bodyId', as: 'body'}
+    @belongsTo 'ExchangeFolder', {through: 'folderId', as: 'folder'}
     @hasManyBelongsTo Mailbox,
       midTableName: 'ExchangeToMailBox', sourceThrough: 'messageId', as: 'to'
 
   constructor: (params) ->
     @initModel params
 
-  @createFromXmlMsg: (xmlMsg) ->
+  @createFromXmlMsg: (xmlMsg, folder) ->
     model = new ExchangeMessage
+    model.folder = folder if folder
     itemId = xmlMsg.itemId()
     model.itemId = itemId.id
     model.changeKey = itemId.changeKey

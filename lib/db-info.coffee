@@ -30,6 +30,7 @@ Migration.createTable 'ExchangeToMailBox', (t) ->
   t.addReference 'messageId', 'ExchangeMessage'
 
 Migration.createTable 'ExchangeMessage', (t) ->
+  t.addReference 'folderId', 'ExchangeFolder'
   t.addColumn 'itemId', Mapper.TEXT
   t.addColumn 'changeKey', Mapper.TEXT
   t.addColumn 'subject', Mapper.TEXT
