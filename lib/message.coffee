@@ -18,7 +18,6 @@ class ExchangeMessage
 
   @createFromXmlMsg: (xmlMsg) ->
     model = new ExchangeMessage
-
     itemId = xmlMsg.itemId()
     model.itemId = itemId.id
     model.changeKey = itemId.changeKey

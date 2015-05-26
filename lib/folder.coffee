@@ -16,7 +16,12 @@ class ExchangeFolder
     @flags = 0
     @emitter = new Emitter
 
-  @syncMessages: ->
+  syncMessages: ->
+    client = @client
+    unless client then client = @client = @account.client
+    opts = {folderId: @folderId, syncState: @syncState, maxReturned: 128}
+    client.syncItems(opts).then (res) ->
+      @syncState = res.syncState()
 
   setFlag: (flag) -> @flags |= flag
   hasFlag: (flag) -> @flags & flag

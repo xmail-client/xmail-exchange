@@ -13,6 +13,7 @@ Migration.createTable 'ExchangeFolder', (t) ->
   t.addColumn 'name', Mapper.TEXT
   t.addColumn 'folderId', Mapper.TEXT
   t.addColumn 'flags', Mapper.INTEGER
+  t.addColumn 'syncState', Mapper.TEXT
   t.addReference 'parentId', 'ExchangeFolder'
   t.addReference 'accountId', 'ExchangeAccount'
 

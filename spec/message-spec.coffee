@@ -7,7 +7,6 @@ describe 'ExchangeMessage', ->
     Mailbox = require '../lib/mailbox'
     FileBuffer = require '../lib/file-buffer'
 
-    console.log Message.prototype.to
     Q.all [
       Message.create({itemId: 'id', changeKey: 'key'}),
       Mailbox.create({name: 'mailbox'}),
@@ -23,7 +22,7 @@ describe 'ExchangeMessage', ->
       done()
     .catch done
 
-  it.only 'createFromXmlMsg', (done) ->
+  it 'createFromXmlMsg', (done) ->
     genMailbox = (obj) ->
       name: -> obj.name
       emailAddress: -> obj.emailAddress
