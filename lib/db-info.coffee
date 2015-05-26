@@ -37,4 +37,4 @@ Migration.createTable 'ExchangeMessage', (t) ->
   t.addColumn 'sentTime', Mapper.DATETIME
   t.addColumn 'hasAttachments', Mapper.INTEGER
   t.addReference 'fromId', 'Mailbox'
-  t.addColumn 'isRead', Mapper.INTEGER
+  t.addColumn 'isRead', Mapper.BOOL

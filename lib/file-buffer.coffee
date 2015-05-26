@@ -11,9 +11,14 @@ class FileBuffer
 
   @initFile: (@path) ->
     @requests = []
+    fileDes = null
     Q.ninvoke(fs, 'open', @path, 'w+')
-    .then (fd) -> Q.ninvoke(fs, 'fstat', fd)
-    .then ({size}) => @fileSize = size
+    .then (fd) ->
+      fileDes = fd
+      Q.ninvoke(fs, 'fstat', fd)
+    .then ({size}) =>
+      @fileSize = size
+      Q.ninvoke(fs, 'close', fileDes)
 
   createReadStream: (opts={}) ->
     opts.start = @offset

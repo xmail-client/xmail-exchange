@@ -4,7 +4,7 @@ Q = require 'q'
 require '../lib/db-info'
 require '../lib/folder'
 require '../lib/account'
-require '../lib/file-buffer'
+FileBuffer = require '../lib/file-buffer'
 require '../lib/mailbox'
 require '../lib/message'
 
@@ -12,8 +12,11 @@ mapper = null
 
 beforeEach (done) ->
   unless mapper
-    mapper = new Mapper require('path').resolve(__dirname, 'temp/test.db')
-    mapper.sync().then -> done()
+    path = require('path')
+    mapper = new Mapper path.resolve(__dirname, 'temp/test.db')
+    mapper.sync().then ->
+      FileBuffer.initFile path.resolve(__dirname, 'temp/test.bin')
+    .then -> done()
     .catch done
   else
     done()

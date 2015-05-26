@@ -1,6 +1,7 @@
 {ModelBase} = require 'sqlite-orm'
 Mailbox = require './mailbox'
 FileBuffer = require './file-buffer'
+Q = require 'q'
 
 module.exports =
 class ExchangeMessage
@@ -16,7 +17,6 @@ class ExchangeMessage
     @initModel params
 
   @createFromXmlMsg: (xmlMsg) ->
-    promises = []
     model = new ExchangeMessage
 
     itemId = xmlMsg.itemId()
@@ -25,22 +25,22 @@ class ExchangeMessage
     model.subject = xmlMsg.subject()
 
     body = xmlMsg.body()
-    @bodyType = body.bodyType
-    promises.push model._writeBody(body.content)
+    model.bodyType = body.bodyType
 
     model.sentTime = new Date(xmlMsg.dateTimeSent())
-
-    promises.push @_createMailbox(xmlMsg.from()).then (mailbox) ->
-      model.from = mailbox
-
-    for toXml in xmlMsg.toRecipients()
-      promises.push @_createMailbox(toXml).then (mailbox) ->
-        model.to.push mailbox
     model.isRead = xmlMsg.isRead()
 
-    Q.all(promises).then ->
-      model.save()
-      model
+    model.save().then =>
+      promises = []
+      promises.push model._writeBody(body.content)
+      promises.push @_createMailbox(xmlMsg.from()).then (mailbox) ->
+        model.from = mailbox
+      for toXml in xmlMsg.toRecipients()
+        promises.push @_createMailbox(toXml).then (mailbox) ->
+          model.to.push mailbox
+      Q.all promises
+    .then -> model.save()
+    .then -> model
 
   _writeBody: (content) ->
     self = this
