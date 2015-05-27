@@ -18,19 +18,21 @@ class ExchangeFolder
     @emitter = new Emitter
 
   @$accountHook:
-    set: -> @client = @account.client
+    set: (account) ->
+      @client = account?.client
 
   syncAllMessages: ->
     @_syncMessages().then (isComplete) =>
       @syncAllMessages() unless isComplete
 
-  _syncMessages: ->
+  _syncMessages: (count=128) ->
     syncRes = null
-    opts = {folderId: @folderId, syncState: @syncState, maxReturned: 128}
-    client.syncItems(opts).then (res) =>
+    opts = {folderId: @folderId, syncState: @syncState, maxReturned: count}
+    @client.syncItems(opts).then (res) =>
       Message = require './message'
       syncRes = res
-      Q.all (Message.createFromXmlMsg(item, this) for item in res.creates())
+      ExchangeFolder.getMapper().scopeTransaction =>
+        Q.all (Message.createFromXmlMsg(item, this) for item in res.creates())
     .then =>
       @syncState = syncRes.syncState()
       this.save()

@@ -25,23 +25,24 @@ class ExchangeMessage
     model.changeKey = itemId.changeKey
     model.subject = xmlMsg.subject()
 
-    body = xmlMsg.body()
-    model.bodyType = body.bodyType
-
     model.sentTime = new Date(xmlMsg.dateTimeSent())
     model.isRead = xmlMsg.isRead()
 
     model.save().then =>
       promises = []
-      promises.push model._writeBody(body.content)
       promises.push @_createMailbox(xmlMsg.from()).then (mailbox) ->
         model.from = mailbox
-      for toXml in xmlMsg.toRecipients()
-        promises.push @_createMailbox(toXml).then (mailbox) ->
-          model.to.push mailbox
+      # for toXml in xmlMsg.toRecipients()
+      #   promises.push @_createMailbox(toXml).then (mailbox) ->
+      #     model.to.push mailbox
       Q.all promises
     .then -> model.save()
     .then -> model
+
+  parseBody: (xmlMsg) ->
+    body = xmlMsg.body()
+    @bodyType = body.bodyType
+    @_writeBody(body.content)
 
   _writeBody: (content) ->
     self = this

@@ -27,6 +27,11 @@ class ExchangeAccount
       this.rootFolder = rootFolder
       this.save()
 
+  createFolderByDistinguishId: (name, flag) ->
+    folderId = {id: name, type: 'distinguished'}
+    @client.getFolder(folderId).then (xmlFolder) =>
+      Folder._createFromXmlFolder(this, xmlFolder, @rootFolder, flag)
+
   createKnownFolders: ->
     folderIds = for name, flag of Folder.DISTINGUISH_MAP
       {id: name, type: 'distinguished', flag}
