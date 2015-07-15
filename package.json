@@ -21,7 +21,7 @@
   "dependencies": {
     "event-kit": "^1.1.0",
     "q": "1.3.0",
-    "sqlite-orm": "^0.2.3",
+    "sqlite-orm": "^0.2.4",
     "viewpoint": "^0.1.5",
     "xmail-model-common": "^0.1.0"
   },
@@ -38,7 +38,7 @@
     "gulp-plumber": "^0.6.5",
     "gulp-util": "^3.0.1",
     "should": "^4.0.4",
-    "sinon": "^1.14.1"
+    "sinon": "^1.15.4"
   },
   "scripts": {
     "coveralls": "gulp test && cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",

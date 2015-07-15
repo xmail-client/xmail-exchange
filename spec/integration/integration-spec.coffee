@@ -3,6 +3,7 @@ mapper = require '../spec-prepare'
 Server = require 'exchange-test-server'
 Account = require '../../lib/account'
 http = require 'http'
+sinon = require 'sinon'
 
 describe 'integration', ->
   [server, account] = []
@@ -14,7 +15,6 @@ describe 'integration', ->
   afterEach (done) ->
     server.dbInfo.destroyTables().then ->
       server.close done
-      # server.close done
     .catch done
 
   describe 'account test', ->
@@ -36,15 +36,20 @@ describe 'integration', ->
       .catch done
 
     it 'createKnownFolders should get folders', (done) ->
-      account.onDidAddFolders
+      callback = sinon.spy()
+      account.onDidAddFolders callback
       account.createKnownFolders()
-      .then -> account.folders.length.should.greaterThan 0
+      .then ->
+        callback.calledOnce.should.true
+        account.folders.length.should.greaterThan 0
       .then -> done()
       .catch done
 
     it 'syncFolders should get folders', (done) ->
+      account.
       account.syncFolders()
-      .then -> account.folderSyncState.should.ok
+      .then ->
+        account.folderSyncState.should.ok
       .then -> done()
       .catch done
 

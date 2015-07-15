@@ -50,6 +50,7 @@ class ExchangeAccount
           Folder._createFromXmlFolder(this, xmlFolder, @rootFolder, flag)
         Q.all promises
     .then (folders) =>
+      console.log 'folders', folders.length
       @emitter.emit 'did-add-folders', folders
 
   _createFolders: (xmlFolders) ->
@@ -59,18 +60,19 @@ class ExchangeAccount
       @emitter.emit 'did-add-folders', folders
 
   _deleteFolders: (xmlFolders) ->
+    return Q() if xmlFolders.length is 0
     promises = for xmlFolder in xmlFolders
       Folder.getByFolderId(xmlFolder.folderId())
-    promises.then (folders) =>
+    Q.all(promises).then (folders) =>
       folders = folders.filter (folder) -> folder?
-      @emitter.emit 'will-remove-folders', folders
+      @emitter.emit 'will-remove-folders', folders if folders.length > 0
       Q.all (folder.destroy() for folder in folders)
 
   syncFolders: ->
     @client.syncFoldersWithParent(@folderSyncState).then (res) =>
       @folderSyncState = res.syncState()
       Folder.getMapper().scopeTransaction =>
-        Q.all [
+        Q.all([
           @_createFolders(res.creates()),
           @_deleteFolders(res.deletes())
-        ]
+        ]).then => @save()
