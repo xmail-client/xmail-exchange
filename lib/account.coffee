@@ -26,22 +26,38 @@ class ExchangeAccount
   onWillRemoveFolders: (callback) ->
     @emitter.on 'will-remove-folders', callback
 
+  onDidRenameFolder: (callback) ->
+    @emitter.on 'did-rename-folder', callback
+
+  createFolder: (name, parentFolder) ->
+    parent = parentFolder.folderId if parentFolder
+    newFolder = new Folder {name: name, account: this, parent}
+    newFolder.save().then =>
+      @client.createFolders name, {parent: parentFolder?.folderId}
+    .then =>
+      @emitter.emit 'did-add-folders', [newFolder]
+      newFolder
+
+  removeFolder: (folder) ->
+    @client.deleteFolders folder.folderId
+    .then =>
+      @emitter.emit 'will-remove-folders', [folder]
+      folder.destroy()
+
   ROOT_FOLDER_ID = 'msgfolderroot'
 
-  createRootFolder: ->
+  pullRootFolder: ->
     @client.getFolder {id: ROOT_FOLDER_ID, type: 'distinguished'}
     .then (xmlFolder) => Folder._createFromXmlFolder(this, xmlFolder, null, 0)
     .then (rootFolder) =>
       this.rootFolder = rootFolder
       this.save()
 
-  createFolderByDistinguishId: (name, flag) ->
-    folderId = {id: name, type: 'distinguished'}
-    @client.getFolder(folderId).then (xmlFolder) =>
-      Folder._createFromXmlFolder(this, xmlFolder, @rootFolder, flag)
+  pullKnownFolders: ->
+    @pullFoldersByName Folder.DISTINGUISH_MAP
 
-  createKnownFolders: ->
-    folderIds = for name, flag of Folder.DISTINGUISH_MAP
+  pullFoldersByName: (nameFlags) ->
+    folderIds = for name, flag of nameFlags
       {id: name, type: 'distinguished', flag}
     @client.getFolders(folderIds).then (folders) =>
       Folder.getMapper().scopeTransaction =>
@@ -50,16 +66,16 @@ class ExchangeAccount
           Folder._createFromXmlFolder(this, xmlFolder, @rootFolder, flag)
         Q.all promises
     .then (folders) =>
-      console.log 'folders', folders.length
       @emitter.emit 'did-add-folders', folders
+      folders
 
-  _createFolders: (xmlFolders) ->
+  _createFoldersByXmlFolders: (xmlFolders) ->
     createPromises = for xmlFolder in xmlFolders
       Folder.updateFromXmlFolder(this, xmlFolder)
     Q.all(createPromises).then (folders) =>
       @emitter.emit 'did-add-folders', folders
 
-  _deleteFolders: (xmlFolders) ->
+  _deleteFoldersByXmlFoldera: (xmlFolders) ->
     return Q() if xmlFolders.length is 0
     promises = for xmlFolder in xmlFolders
       Folder.getByFolderId(xmlFolder.folderId())
@@ -68,11 +84,11 @@ class ExchangeAccount
       @emitter.emit 'will-remove-folders', folders if folders.length > 0
       Q.all (folder.destroy() for folder in folders)
 
-  syncFolders: ->
+  pullFolders: ->
     @client.syncFoldersWithParent(@folderSyncState).then (res) =>
       @folderSyncState = res.syncState()
       Folder.getMapper().scopeTransaction =>
         Q.all([
-          @_createFolders(res.creates()),
-          @_deleteFolders(res.deletes())
+          @_createFoldersByXmlFolders(res.creates()),
+          @_deleteFoldersByXmlFoldera(res.deletes())
         ]).then => @save()

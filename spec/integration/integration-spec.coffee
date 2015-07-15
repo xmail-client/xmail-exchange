@@ -29,25 +29,42 @@ describe 'integration', ->
       account = new Account(config, opts)
       account.save().then -> done()
 
-    it 'createRootFolder should get root Folder', (done) ->
-      account.createRootFolder()
+    it 'pullRootFolder should get root Folder', (done) ->
+      account.pullRootFolder()
       .then -> account.rootFolder.folderId.should.ok
       .then -> done()
       .catch done
 
-    it 'createKnownFolders should get folders', (done) ->
+    it 'pullKnownFolders should get folders', (done) ->
       callback = sinon.spy()
       account.onDidAddFolders callback
-      account.createKnownFolders()
+      account.pullKnownFolders()
       .then ->
         callback.calledOnce.should.true
         account.folders.length.should.greaterThan 0
       .then -> done()
       .catch done
 
-    it 'syncFolders should get folders', (done) ->
-      account.
-      account.syncFolders()
+    it 'createFolder can create folder in server', (done) ->
+      callback = sinon.spy()
+      account.onDidAddFolders callback
+      account.createFolder('new-folder').then (folder) ->
+        callback.calledOnce.should.true
+        done()
+      .catch done
+
+    it 'removeFolder can remove folder in server', (done) ->
+      callback = sinon.spy()
+      account.onWillRemoveFolders callback
+      account.pullFoldersByName({inbox: 1}).then (folders) ->
+        account.removeFolder(folders[0])
+      .then ->
+        callback.calledOnce.should.true
+        done()
+      .catch done
+
+    it 'pullFolders should get folders', (done) ->
+      account.pullFolders()
       .then ->
         account.folderSyncState.should.ok
       .then -> done()
