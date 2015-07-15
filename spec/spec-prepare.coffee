@@ -1,6 +1,7 @@
 Mapper = require 'sqlite-orm'
 Migration = Mapper.Migration
 Q = require 'q'
+path = require('path')
 require '../lib/db-info'
 require '../lib/folder'
 require '../lib/account'
@@ -10,9 +11,15 @@ require '../lib/message'
 
 mapper = null
 
+makeTempDirIfNotExists = ->
+  fs = require 'fs'
+  tempDir = path.resolve(__dirname, 'temp')
+  unless fs.existsSync(tempDir)
+    fs.mkdirSync tempDir
+
 beforeEach (done) ->
   unless mapper
-    path = require('path')
+    makeTempDirIfNotExists()
     mapper = new Mapper path.resolve(__dirname, 'temp/test.db')
     mapper.sync().then ->
       FileBuffer.initFile path.resolve(__dirname, 'temp/test.bin')
