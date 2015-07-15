@@ -1,5 +1,6 @@
 common = require 'xmail-model-common'
 Mapper = require 'sqlite-orm'
+{Emitter} = require 'event-kit'
 Folder = require './folder'
 EWSClient = require 'viewpoint'
 Q = require 'q'
@@ -17,6 +18,13 @@ class ExchangeAccount
   constructor: (params, httpOpts) ->
     @initModel params
     @client = new EWSClient(@username, @password, @url, httpOpts)
+    @emitter = new Emitter
+
+  onDidAddFolders: (callback) ->
+    @emitter.on 'did-add-folders', callback
+
+  onWillRemoveFolders: (callback) ->
+    @emitter.on 'will-remove-folders', callback
 
   ROOT_FOLDER_ID = 'msgfolderroot'
 
@@ -41,14 +49,28 @@ class ExchangeAccount
           flag = folderIds[i].flag
           Folder._createFromXmlFolder(this, xmlFolder, @rootFolder, flag)
         Q.all promises
+    .then (folders) =>
+      @emitter.emit 'did-add-folders', folders
+
+  _createFolders: (xmlFolders) ->
+    createPromises = for xmlFolder in xmlFolders
+      Folder.updateFromXmlFolder(this, xmlFolder)
+    Q.all(createPromises).then (folders) =>
+      @emitter.emit 'did-add-folders', folders
+
+  _deleteFolders: (xmlFolders) ->
+    promises = for xmlFolder in xmlFolders
+      Folder.getByFolderId(xmlFolder.folderId())
+    promises.then (folders) =>
+      folders = folders.filter (folder) -> folder?
+      @emitter.emit 'will-remove-folders', folders
+      Q.all (folder.destroy() for folder in folders)
 
   syncFolders: ->
     @client.syncFoldersWithParent(@folderSyncState).then (res) =>
       @folderSyncState = res.syncState()
       Folder.getMapper().scopeTransaction =>
-        promises = []
-        for xmlFolder in res.creates()
-          promises.push Folder.updateFromXmlFolder(this, xmlFolder)
-        for xmlFolder in res.deletes()
-          promises.push Folder.removeByXmlFolder(this, xmlFolder)
-        Q.all promises
+        Q.all [
+          @_createFolders(res.creates()),
+          @_deleteFolders(res.deletes())
+        ]

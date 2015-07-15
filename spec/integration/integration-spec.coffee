@@ -1,20 +1,34 @@
 Q = require 'q'
 mapper = require '../spec-prepare'
+Server = require 'exchange-test-server'
+Account = require '../../lib/account'
+http = require 'http'
 
-describe.skip 'integration', ->
-  config = require './config.json'
-  Account = require '../../lib/account'
-  account = null
+describe 'integration', ->
+  [server, account] = []
   beforeEach (done) ->
-    opts =
-      rejectUnauthorized: false
-      proxy: {host: 'localhost', port: 8888}
-      agent: new require('http').Agent({keepAlive: true})
+    dbPath = require('path').resolve(__dirname, '../temp/server.db')
+    server = new Server()
+    server.start dbPath: dbPath, done
 
-    account = new Account(config, opts)
-    account.save().then -> done()
+  afterEach (done) ->
+    server.dbInfo.destroyTables().then ->
+      server.close done
+      # server.close done
+    .catch done
 
-  describe 'Account', ->
+  describe 'account test', ->
+    config = url: 'http://127.0.0.1:3000/EWS/Exchange.asmx'
+    beforeEach (done) ->
+      opts =
+        rejectUnauthorized: false
+        agent: http.globalAgent
+        # proxy: {host: 'localhost', port: 8888}
+        # agent: new require('http').Agent({keepAlive: true})
+
+      account = new Account(config, opts)
+      account.save().then -> done()
+
     it 'createRootFolder should get root Folder', (done) ->
       account.createRootFolder()
       .then -> account.rootFolder.folderId.should.ok
@@ -22,6 +36,7 @@ describe.skip 'integration', ->
       .catch done
 
     it 'createKnownFolders should get folders', (done) ->
+      account.onDidAddFolders
       account.createKnownFolders()
       .then -> account.folders.length.should.greaterThan 0
       .then -> done()
@@ -33,7 +48,7 @@ describe.skip 'integration', ->
       .then -> done()
       .catch done
 
-  describe 'Folder', ->
+  describe.skip 'Folder', ->
     Folder = require '../../lib/folder'
     folder = null
     beforeEach (done) ->

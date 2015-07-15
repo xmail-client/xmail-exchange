@@ -33,6 +33,7 @@ gulp.task('test', function (cb) {
     .pipe(plugins.plumber(plumberConf))
     .pipe(plugins.mocha({
       reporter: CI ? 'spec' : 'nyan',
+      timeout: '5s',
       globals: {
         should: require('should')
       }

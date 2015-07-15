@@ -1,5 +1,4 @@
 Q = require 'q'
-{Emitter} = require 'event-kit'
 {ModelBase} = require 'sqlite-orm'
 
 module.exports =
@@ -15,17 +14,7 @@ class ExchangeFolder
   constructor: (params) ->
     @initModel params
     @flags = 0
-    @emitter = new Emitter
     @on 'account', => @client = @account?.client
-    @on 'children', onChildrenChanged.bind(this)
-
-  onChildrenChanged: (change) ->
-    return if change.type isnt 'splice'
-    if change.removed.length > 0
-      @emitter.emit 'did-remove-children', change.removed
-    if change.addedCount > 0
-      @emitter.emit 'did-add-children',
-        @children.slice(change.index, change.index + change.addedCount)
 
   syncAllMessages: ->
     @_syncMessages().then (isComplete) =>
@@ -48,12 +37,6 @@ class ExchangeFolder
   hasFlag: (flag) -> @flags & flag
 
   getChildren: -> @children
-
-  onDidAddChildren: (callback) ->
-    @emitter.on 'did-add-children', callback
-
-  onDidRemoveChildren: (callback) ->
-    @emitter.on 'did-remove-children', callback
 
   @updateFromXmlFolder: (account, xmlFolder) ->
     @getByFolderId(xmlFolder.folderId()).then (folder) =>
