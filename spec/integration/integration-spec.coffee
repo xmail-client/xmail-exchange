@@ -29,22 +29,6 @@ describe 'integration', ->
       account = new Account(config, opts)
       account.save().then -> done()
 
-    it 'pullRootFolder should get root Folder', (done) ->
-      account.pullRootFolder()
-      .then -> account.rootFolder.folderId.should.ok
-      .then -> done()
-      .catch done
-
-    it 'pullKnownFolders should get folders', (done) ->
-      callback = sinon.spy()
-      account.onDidAddFolders callback
-      account.pullKnownFolders()
-      .then ->
-        callback.calledOnce.should.true
-        account.folders.length.should.greaterThan 0
-      .then -> done()
-      .catch done
-
     it 'createFolder can create folder in server', (done) ->
       callback = sinon.spy()
       account.onDidAddFolders callback
@@ -61,6 +45,32 @@ describe 'integration', ->
       .then ->
         callback.calledOnce.should.true
         done()
+      .catch done
+
+    it 'renameFolder will rename folder in server', (done) ->
+      callback = sinon.spy()
+      account.onDidRenameFolder callback
+      account.pullFoldersByName({inbox: 1}).then (folders) ->
+        account.renameFolder(folders[0], 'new-folder')
+      .then ->
+        callback.calledOnce.should.true
+        done()
+      .catch done
+
+    it 'pullRootFolder should get root Folder', (done) ->
+      account.pullRootFolder()
+      .then -> account.rootFolder.folderId.should.ok
+      .then -> done()
+      .catch done
+
+    it 'pullKnownFolders should get folders', (done) ->
+      callback = sinon.spy()
+      account.onDidAddFolders callback
+      account.pullKnownFolders()
+      .then ->
+        callback.calledOnce.should.true
+        account.folders.length.should.greaterThan 0
+      .then -> done()
       .catch done
 
     it 'pullFolders should get folders', (done) ->

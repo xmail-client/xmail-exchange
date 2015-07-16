@@ -44,6 +44,13 @@ class ExchangeAccount
       @emitter.emit 'will-remove-folders', [folder]
       folder.destroy()
 
+  renameFolder: (folder, name) ->
+    @client.updateFolder folder.folderId, {displayName: name}
+    .then ->
+      folder.displayName = name
+      folder.save()
+    .then => @emitter.emit 'did-rename-folder', folder
+
   ROOT_FOLDER_ID = 'msgfolderroot'
 
   pullRootFolder: ->
